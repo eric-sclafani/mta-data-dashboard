@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { MTADataService } from '../../services/mtadata.service';
 import { Ridership } from '../../models/ridership';
 
+import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
@@ -11,19 +13,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     standalone: true,
     imports: [
         MatSelectModule,
-        MatFormFieldModule
+        MatFormFieldModule,
+        MatButtonModule
     ],
     templateUrl: 'ridership.component.html',
     styleUrl: './ridership.component.scss'
 })
 export class RidershipComponent implements OnInit {
 
-    private chart: Chart;
-    private riderShipAPIData: Ridership[];
+    public chart: Chart;
     public years: Set<number>;
-
     public selectedYear = 2020;
 
+    private riderShipAPIData: Ridership[];
     private labels: string[];
     private currentData: number[];
 
@@ -31,6 +33,7 @@ export class RidershipComponent implements OnInit {
 
 
     ngOnInit(): void {
+        Chart.register(zoomPlugin);
         this.initRidershipDashboard();
     }
 
@@ -60,7 +63,7 @@ export class RidershipComponent implements OnInit {
             labels: this.labels,
             datasets: [
                 {
-                    label: 'Estimated Subway Ridership Per Year',
+                    label: 'Estimated Subway Ridership',
                     data: this.currentData,
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',
@@ -71,7 +74,19 @@ export class RidershipComponent implements OnInit {
 
         const config = {
             data: data,
-            type: 'line'
+            type: 'line',
+            options: {
+                plugins: {
+                    zoom: {
+                        zoom : {
+                            drag: {
+                                enabled: true,
+                                backgroundColor: 'rgb( 163, 247, 254, 0.3)'
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         this.chart = new Chart(
@@ -98,6 +113,7 @@ export class RidershipComponent implements OnInit {
         return filtered;
     }
 
+    
 
 
 
