@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,26 +18,23 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
 
     public title = 'MTA Data Dashboard';
-    public selectedData:string = '';
+    public selectedData:string;
 
-    constructor(private _router: Router) { }
+    constructor(private router: Router) { }
 
+    ngOnInit(): void {
+        this.toHome();
+      }
 
     public navigateTo():void {
-        this._router.navigate([`/${this.selectedData}`]);
+        this.router.navigate([`/${this.selectedData}`]);
     }
 
     public toHome():void {
-        this._router.navigate(['/']);
+        this.router.navigate(['/']);
         this.selectedData = '';
     }
-
-
-
-
-  // major felonies
-  // https://data.ny.gov/resource/yeek-jhmu.json?$limit=50000
 }
