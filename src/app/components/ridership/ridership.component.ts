@@ -37,6 +37,13 @@ export class RidershipComponent implements OnInit {
         this.initRidershipDashboard();
     }
 
+    public applyChartUpdate(): void {
+        this.setChartData();
+        this.removeData();
+        this.addData();
+
+    }
+
     private initRidershipDashboard(): void {
         this.mtaDataService.getRidershipData().subscribe({
             next: (data) => this.riderShipAPIData = data,
@@ -45,17 +52,13 @@ export class RidershipComponent implements OnInit {
 
             complete: () => {
                 this.years = new Set(this.getYears())
-
-                const filtered = this.getSubwayRidershipsFromYear(this.selectedYear);
-                this.currentData = filtered.map((record) => parseInt(record.subways_total_estimated_ridership));
-                this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
-
+                this.setChartData();
                 this.initChart();
             }
         })
     }
 
-    
+
 
     private initChart(): void {
 
@@ -78,21 +81,48 @@ export class RidershipComponent implements OnInit {
             options: {
                 plugins: {
                     zoom: {
-                        zoom : {
+                        zoom: {
                             drag: {
                                 enabled: true,
                                 backgroundColor: 'rgb( 163, 247, 254, 0.3)'
                             }
                         }
                     }
-                }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: '# of Subway Riders (est.)',
+                            font: {
+                                size: 20
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Day',
+                            font: {
+                                size: 20
+                            }
+                        }
+                    }
+                },
             }
+
         }
 
         this.chart = new Chart(
             document.getElementById('ridershipPlot') as HTMLCanvasElement,
             config as ChartConfiguration
         );
+    }
+
+    private setChartData(): void {
+        const filtered = this.getSubwayRidershipsFromYear(this.selectedYear);
+        this.currentData = filtered.map((record) => parseInt(record.subways_total_estimated_ridership));
+        this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
     }
 
     private getYears(): number[] {
@@ -113,7 +143,25 @@ export class RidershipComponent implements OnInit {
         return filtered;
     }
 
-    
+    private addData() {
+        this.chart.data.labels = this.labels;
+        this.chart.data.datasets.forEach((dataset: any) => {
+            dataset.data = this.currentData;
+        });
+        this.chart.update();
+    }
+
+    private removeData(): void {
+        this.chart.data.labels = [];
+        this.chart.data.datasets.forEach((dataset) => {
+            dataset.data = [];
+        });
+        this.chart.update();
+    }
+
+
+
+
 
 
 

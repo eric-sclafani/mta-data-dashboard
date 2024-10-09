@@ -5,7 +5,7 @@
             <mat-label>
                 Select year
             </mat-label>
-            <mat-select [(value)]="selectedYear">
+            <mat-select [(value)]="selectedYear" (selectionChange)="applyChartUpdate()">
                 @for (year of years; track year){
                     <mat-option [value]="year">{{ year }}</mat-option>
                 }
