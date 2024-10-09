@@ -1,3 +1,19 @@
-<div style="width: 800px;">
-    <canvas id="ridershipPlot"></canvas>
+<div id="plot-wrapper">
+
+    <mat-form-field style="width:30vw;">
+        <mat-label>
+            Select year
+        </mat-label>
+        <mat-select [(value)]="selectedYear">
+            @for (year of years; track year){
+                <mat-option [value]="year">{{ year }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <div style="width: 90vw;">
+        <canvas id="ridershipPlot"></canvas>
+    </div>
+
 </div>
+
