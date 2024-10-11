@@ -3,6 +3,7 @@ import { Chart, ChartConfiguration } from 'chart.js/auto';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { MTADataService } from '../../services/mtadata.service';
 import { Ridership } from '../../models/ridership';
+import { Dataset } from '../../models/dataset';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -21,18 +22,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 })
 export class RidershipComponent implements OnInit {
 
+    
+    private riderShipAPIData: Ridership[];
+    private labels: string[];
+    private currentDataView: Dataset;
+    private ridershipTypes:Record<string,string> = {
+        'Estimated Subway Ridership' : 'subways_total_estimated_ridership',
+        'Estimated Bus Ridership' : 'buses_total_estimated_ridersip', 
+        'Estimated LIRR Ridership' : 'lirr_total_estimated_ridership',
+        'Estimated Metro-North Ridership' : 'metro_north_total_estimated_ridership',
+        'Estimated Bridges and Tunnels Traffic' : 'bridges_and_tunnels_total_traffic',
+    }
+
+    public ridershipTypeNames = Object.keys(this.ridershipTypes);
     public chart: Chart;
     public years: Set<number>;
     public selectedYear = 2020;
-
-    private riderShipAPIData: Ridership[];
-    private labels: string[];
-
-    private subwayRiders: number[];
-    private busRiders: number[];
-    private LIRRRiders: number[];
-    private metroNorthRiders: number[];
-    private bridgesTunnelsTraffic: number[];
+    public selectedView = 'Estimated Subway Ridership'
 
     constructor(private mtaDataService: MTADataService) { }
 
@@ -48,6 +54,13 @@ export class RidershipComponent implements OnInit {
         this.refreshData();
 
     }
+
+    private setInstanceData():void {
+        const filtered = this.filterDataByYear(this.selectedYear);
+        this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
+        this.setDataView(filtered);
+    }
+
 
     private initRidershipDashboard(): void {
         this.mtaDataService.getRidershipData().subscribe({
@@ -76,45 +89,7 @@ export class RidershipComponent implements OnInit {
 
         const data = {
             labels: this.labels,
-            datasets: [
-                {
-                    label: 'Estimated Subway Ridership',
-                    data: this.subwayRiders,
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                },
-                {
-                    label: 'Estimated Bus Ridership',
-                    data: this.busRiders,
-                    fill: false,
-                    borderColor: 'rgb(80, 51, 231)',
-                    tension: 0.1
-                },
-                {
-                    label: 'Estimated LIRR Ridership',
-                    data: this.LIRRRiders,
-                    fill: false,
-                    borderColor: 'rgb(211, 88, 21)',
-                    tension: 0.1
-                },
-                {
-                    label: 'Estimated Metro-North Ridership',
-                    data: this.metroNorthRiders,
-                    fill: false,
-                    borderColor: 'rgb( 92, 157, 14)',
-                    tension: 0.1
-                },
-                {
-                    label: 'Estimated Bridges and Tunnels Traffic',
-                    data: this.bridgesTunnelsTraffic,
-                    fill: false,
-                    borderColor: 'rgb( 92, 157, 14)',
-                    tension: 0.1
-                },
-
-
-            ]
+            datasets: [this.currentDataView]
         }
 
         const config = {
@@ -135,7 +110,7 @@ export class RidershipComponent implements OnInit {
                     y: {
                         title: {
                             display: true,
-                            text: '# of Subway Riders (est.)',
+                            text: 'Traffic (est.)',
                             font: {
                                 size: 20
                             }
@@ -155,21 +130,33 @@ export class RidershipComponent implements OnInit {
 
         }
 
+        config.data = data;
         this.chart = new Chart(
             document.getElementById('ridershipPlot') as HTMLCanvasElement,
             config as ChartConfiguration
         );
     }
 
-    private setInstanceData(): void {
-        const filtered = this.filterDataByYear(this.selectedYear);
-        this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
-        this.subwayRiders = this.getNumericData(filtered, 'subways_total_estimated_ridership');
-        this.busRiders = this.getNumericData(filtered, 'buses_total_estimated_ridersip');
-        this.LIRRRiders = this.getNumericData(filtered, 'lirr_total_estimated_ridership');
-        this.metroNorthRiders = this.getNumericData(filtered, 'metro_north_total_estimated_ridership');
-        this.bridgesTunnelsTraffic = this.getNumericData(filtered, 'bridges_and_tunnels_total_traffic');
+    private setDataView(filteredAPIData: Ridership[]):void{
+        const possibleColors = [
+            'rgb(75, 192, 192)',
+            'rgb( 92, 157, 14)',
+            'rgb( 212, 139, 36)',
+            'rgb( 62, 193, 14)',
+            'rgb( 193, 14, 134)',
+            'rgb( 193, 14, 87)'
+        ]
+        let idx = Math.floor(Math.random() * possibleColors.length);
 
+        const dataView = {
+            label: this.selectedView,
+            data: this.getNumericData(filteredAPIData, this.ridershipTypes[this.selectedView]),
+            fill: false,
+            borderColor: possibleColors[idx],
+            tension: 0.1
+        }
+
+        this.currentDataView = dataView;
     }
 
     private getNumericData(filteredData:Ridership[], field:string):number[]{
@@ -186,33 +173,9 @@ export class RidershipComponent implements OnInit {
         return filtered;
     }
 
-    private refreshData() {
+    private refreshData():void {
         this.chart.data.labels = this.labels;
-        this.chart.data.datasets.forEach((dataset: any) => {
-
-            switch (dataset.label) {
-
-                case 'Estimated Subway Ridership':
-                    dataset.data = this.subwayRiders;
-                    break;
-
-                case 'Estimated Bus Ridership':
-                    dataset.data = this.busRiders;
-                    break;
-
-                case 'Estimated LIRR Ridership':
-                    dataset.data = this.LIRRRiders;
-                    break;
-
-                case 'Estimated Metro-North Ridership':
-                    dataset.data = this.metroNorthRiders;
-                    break;
-                
-                case 'Estimated Bridges and Tunnels Traffic':
-                    dataset.data = this.bridgesTunnelsTraffic;
-            }
-
-        });
+        this.chart.data.datasets = [this.currentDataView];
         this.chart.update();
     }
 

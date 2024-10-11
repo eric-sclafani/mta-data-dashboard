@@ -1,6 +1,19 @@
 <div id="plot-wrapper">
 
     <div id="plot-header">
+
+        <mat-form-field style="width:30vw;">
+            <mat-label>
+                Select 
+            </mat-label>
+            
+            <mat-select [(value)]="selectedView"  (selectionChange)="applyChartUpdate()">
+                @for (name of ridershipTypeNames; track name){
+                    <mat-option [value]="name">{{ name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
         <mat-form-field style="width:30vw;">
             <mat-label>
                 Select year
