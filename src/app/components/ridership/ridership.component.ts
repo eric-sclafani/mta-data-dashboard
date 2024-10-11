@@ -27,7 +27,10 @@ export class RidershipComponent implements OnInit {
 
     private riderShipAPIData: Ridership[];
     private labels: string[];
-    private currentData: number[];
+
+    private subwayRiders: number[];
+    private busRiders: number[];
+
 
     constructor(private mtaDataService: MTADataService) { }
 
@@ -38,9 +41,9 @@ export class RidershipComponent implements OnInit {
     }
 
     public applyChartUpdate(): void {
-        this.setChartData();
-        this.removeData();
-        this.addData();
+        this.setInstanceData();
+        this.removeOldData();
+        this.refreshData();
 
     }
 
@@ -52,12 +55,19 @@ export class RidershipComponent implements OnInit {
 
             complete: () => {
                 this.years = new Set(this.getYears())
-                this.setChartData();
+                this.setInstanceData();
                 this.initChart();
             }
         })
     }
 
+    private getYears(): number[] {
+        return this.riderShipAPIData.map(record => {
+            const year = new Date(record.date).getFullYear();
+            return year;
+        })
+
+    }
 
 
     private initChart(): void {
@@ -67,11 +77,19 @@ export class RidershipComponent implements OnInit {
             datasets: [
                 {
                     label: 'Estimated Subway Ridership',
-                    data: this.currentData,
+                    data: this.subwayRiders,
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1
-                }
+                },
+                {
+                    label: 'Estimated Bus Ridership',
+                    data: this.busRiders,
+                    fill: false,
+                    borderColor: 'rgb(80, 51, 231)',
+                    tension: 0.1
+                },
+
             ]
         }
 
@@ -119,21 +137,25 @@ export class RidershipComponent implements OnInit {
         );
     }
 
-    private setChartData(): void {
-        const filtered = this.getSubwayRidershipsFromYear(this.selectedYear);
-        this.currentData = filtered.map((record) => parseInt(record.subways_total_estimated_ridership));
+    private setInstanceData(): void {
+        const filtered = this.filterDataByYear(this.selectedYear);
         this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
-    }
-
-    private getYears(): number[] {
-        return this.riderShipAPIData.map(record => {
-            const year = new Date(record.date).getFullYear();
-            return year;
-        })
+        this.subwayRiders = this.getSubwayData(filtered);
+        this.busRiders = this.getBusData(filtered);
 
     }
 
-    private getSubwayRidershipsFromYear(year: number): Ridership[] {
+
+
+    private getSubwayData(filteredData: Ridership[]): number[] {
+        return filteredData.map((record) => parseInt(record.subways_total_estimated_ridership));
+    }
+
+    private getBusData(filteredData: Ridership[]): number[] {
+        return filteredData.map((record) => parseInt(record.buses_total_estimated_ridersip));
+    }
+
+    private filterDataByYear(year: number): Ridership[] {
 
         const filtered = this.riderShipAPIData.filter((record) => {
             const recordYear = new Date(record.date).getFullYear();
@@ -143,31 +165,32 @@ export class RidershipComponent implements OnInit {
         return filtered;
     }
 
-    private addData() {
+    private refreshData() {
         this.chart.data.labels = this.labels;
         this.chart.data.datasets.forEach((dataset: any) => {
-            dataset.data = this.currentData;
+
+            switch (dataset.label) {
+
+                case 'Estimated Subway Ridership':
+                    dataset.data = this.subwayRiders;
+                    break;
+
+                case 'Estimated Bus Ridership':
+                    dataset.data = this.busRiders;
+                    break;
+            }
+
         });
         this.chart.update();
     }
 
-    private removeData(): void {
+    private removeOldData(): void {
         this.chart.data.labels = [];
         this.chart.data.datasets.forEach((dataset) => {
             dataset.data = [];
         });
         this.chart.update();
     }
-
-
-
-
-
-
-
-
-
-
 
 
 }

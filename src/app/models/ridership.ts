@@ -2,7 +2,7 @@ export interface Ridership {
     date: Date;
     subways_total_estimated_ridership: string;
     subways_of_comparable_pre_pandemic_day: string;
-    buses_total_estimated_ridership: string;
+    buses_total_estimated_ridersip: string;
     buses_of_comparable_pre_pandemic_day: string;
     lirr_total_estimated_ridership: string;
     lirr_of_comparable_pre_pandemic_day: string;
