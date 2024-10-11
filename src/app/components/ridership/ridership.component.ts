@@ -30,7 +30,9 @@ export class RidershipComponent implements OnInit {
 
     private subwayRiders: number[];
     private busRiders: number[];
-
+    private LIRRRiders: number[];
+    private metroNorthRiders: number[];
+    private bridgesTunnelsTraffic: number[];
 
     constructor(private mtaDataService: MTADataService) { }
 
@@ -89,6 +91,28 @@ export class RidershipComponent implements OnInit {
                     borderColor: 'rgb(80, 51, 231)',
                     tension: 0.1
                 },
+                {
+                    label: 'Estimated LIRR Ridership',
+                    data: this.LIRRRiders,
+                    fill: false,
+                    borderColor: 'rgb(211, 88, 21)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Estimated Metro-North Ridership',
+                    data: this.metroNorthRiders,
+                    fill: false,
+                    borderColor: 'rgb( 92, 157, 14)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Estimated Bridges and Tunnels Traffic',
+                    data: this.bridgesTunnelsTraffic,
+                    fill: false,
+                    borderColor: 'rgb( 92, 157, 14)',
+                    tension: 0.1
+                },
+
 
             ]
         }
@@ -140,19 +164,16 @@ export class RidershipComponent implements OnInit {
     private setInstanceData(): void {
         const filtered = this.filterDataByYear(this.selectedYear);
         this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
-        this.subwayRiders = this.getSubwayData(filtered);
-        this.busRiders = this.getBusData(filtered);
+        this.subwayRiders = this.getNumericData(filtered, 'subways_total_estimated_ridership');
+        this.busRiders = this.getNumericData(filtered, 'buses_total_estimated_ridersip');
+        this.LIRRRiders = this.getNumericData(filtered, 'lirr_total_estimated_ridership');
+        this.metroNorthRiders = this.getNumericData(filtered, 'metro_north_total_estimated_ridership');
+        this.bridgesTunnelsTraffic = this.getNumericData(filtered, 'bridges_and_tunnels_total_traffic');
 
     }
 
-
-
-    private getSubwayData(filteredData: Ridership[]): number[] {
-        return filteredData.map((record) => parseInt(record.subways_total_estimated_ridership));
-    }
-
-    private getBusData(filteredData: Ridership[]): number[] {
-        return filteredData.map((record) => parseInt(record.buses_total_estimated_ridersip));
+    private getNumericData(filteredData:Ridership[], field:string):number[]{
+        return filteredData.map((record:any) => parseInt(record[field]));
     }
 
     private filterDataByYear(year: number): Ridership[] {
@@ -178,6 +199,17 @@ export class RidershipComponent implements OnInit {
                 case 'Estimated Bus Ridership':
                     dataset.data = this.busRiders;
                     break;
+
+                case 'Estimated LIRR Ridership':
+                    dataset.data = this.LIRRRiders;
+                    break;
+
+                case 'Estimated Metro-North Ridership':
+                    dataset.data = this.metroNorthRiders;
+                    break;
+                
+                case 'Estimated Bridges and Tunnels Traffic':
+                    dataset.data = this.bridgesTunnelsTraffic;
             }
 
         });
