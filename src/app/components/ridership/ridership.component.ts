@@ -32,13 +32,17 @@ export class RidershipComponent implements OnInit {
         'Estimated LIRR Ridership' : 'lirr_total_estimated_ridership',
         'Estimated Metro-North Ridership' : 'metro_north_total_estimated_ridership',
         'Estimated Bridges and Tunnels Traffic' : 'bridges_and_tunnels_total_traffic',
+        'Estimated Staten Island Railway Ridership' : 'staten_island_railway_total_estimated_ridership',
+        'Access-A-Ride Scheduled Trips':'access_a_ride_total_scheduled_trips'
     }
 
     public ridershipTypeNames = Object.keys(this.ridershipTypes);
     public chart: Chart;
     public years: Set<number>;
+
     public selectedYear = 2020;
-    public selectedView = 'Estimated Subway Ridership'
+    public selectedData = 'Estimated Subway Ridership'
+    public selectedViewBy = 'Day';
 
     constructor(private mtaDataService: MTADataService) { }
 
@@ -56,7 +60,7 @@ export class RidershipComponent implements OnInit {
     }
 
     private setInstanceData():void {
-        const filtered = this.filterDataByYear(this.selectedYear);
+        let filtered = this.filterDataByYear(this.selectedYear);
         this.labels = filtered.map((record) => new Date(record.date).toLocaleDateString("en-US"));
         this.setDataView(filtered);
     }
@@ -149,8 +153,8 @@ export class RidershipComponent implements OnInit {
         let idx = Math.floor(Math.random() * possibleColors.length);
 
         const dataView = {
-            label: this.selectedView,
-            data: this.getNumericData(filteredAPIData, this.ridershipTypes[this.selectedView]),
+            label: this.selectedData,
+            data: this.getNumericData(filteredAPIData, this.ridershipTypes[this.selectedData]),
             fill: false,
             borderColor: possibleColors[idx],
             tension: 0.1
