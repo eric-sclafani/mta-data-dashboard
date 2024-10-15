@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { MTADataService } from '../../services/mtadata.service';
@@ -8,6 +8,8 @@ import { Dataset } from '../../models/dataset';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
     selector: 'app-ridership',
@@ -15,15 +17,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     imports: [
         MatSelectModule,
         MatFormFieldModule,
-        MatButtonModule
+        MatButtonModule,
+        MatTableModule,
+        MatPaginator
     ],
     templateUrl: 'ridership.component.html',
     styleUrl: './ridership.component.scss'
 })
-export class RidershipComponent implements OnInit {
+export class RidershipComponent implements OnInit{
 
     
-    private riderShipAPIData: Ridership[];
     private labels: string[];
     private currentDataView: Dataset;
     private ridershipTypes:Record<string,string> = {
@@ -36,14 +39,20 @@ export class RidershipComponent implements OnInit {
         'Access-A-Ride Scheduled Trips':'access_a_ride_total_scheduled_trips'
     }
 
+    
+
+    public riderShipAPIData: Ridership[];
     public ridershipTypeNames = Object.keys(this.ridershipTypes);
+    public ridershipCols = ['date', ...Object.values(this.ridershipTypes)];
     public chart: Chart;
     public years: Set<number>;
 
     public selectedYear = 2020;
     public selectedData = 'Estimated Subway Ridership'
-    public selectedViewBy = 'Day';
 
+    @ViewChild(MatPaginator) paginator: MatPaginator;
+
+ 
     constructor(private mtaDataService: MTADataService) { }
 
 
@@ -51,12 +60,17 @@ export class RidershipComponent implements OnInit {
         Chart.register(zoomPlugin);
         this.initRidershipDashboard();
     }
+    
 
     public applyChartUpdate(): void {
         this.setInstanceData();
         this.removeOldData();
         this.refreshData();
 
+    }
+
+    public renderDate(date: Date): string {
+        return new Date(date).toLocaleDateString();
     }
 
     private setInstanceData():void {
@@ -190,6 +204,8 @@ export class RidershipComponent implements OnInit {
         });
         this.chart.update();
     }
+
+
 
 
 }

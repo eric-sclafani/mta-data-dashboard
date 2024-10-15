@@ -28,15 +28,60 @@
     
         <button class="mat-button" type="button" mat-raised-button (click)="chart.resetZoom();">Reset Zoom</button>
     </div>
-
-    @if (selectedViewBy == 'Month'){
-        <div class="month-note">
-            Note: each month is the average of the daily total estimate for that month 
-        </div>
-    }
     
     <div style="width: 90vw;">
         <canvas id="ridershipPlot"></canvas>
+    </div>
+
+    <div id="ridership-table">
+        <table mat-table [dataSource]="riderShipAPIData" class="mat-elevation-z8">
+            <tr mat-header-row *matHeaderRowDef="ridershipCols"></tr>
+            <tr mat-row *matRowDef="let myRowData; columns: ridershipCols"></tr>
+
+            <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let item">{{ renderDate(item.date) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="subways_total_estimated_ridership">
+                <th mat-header-cell *matHeaderCellDef>Subways: Estimated Total Ridership</th>
+                <td mat-cell *matCellDef="let item">{{ item.subways_total_estimated_ridership }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="buses_total_estimated_ridersip">
+                <th mat-header-cell *matHeaderCellDef>Buses: Total Estimated Ridership</th>
+                <td mat-cell *matCellDef="let item"> {{ item.buses_total_estimated_ridersip }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="lirr_total_estimated_ridership">
+                <th mat-header-cell *matHeaderCellDef>LIRR: Total Estimated Ridership</th>
+                <td mat-cell *matCellDef="let item">{{ item.lirr_total_estimated_ridership }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="metro_north_total_estimated_ridership">
+                <th mat-header-cell *matHeaderCellDef>Metro-North: Total Estimated Ridership</th>
+                <td mat-cell *matCellDef="let item">{{ item.metro_north_total_estimated_ridership }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="access_a_ride_total_scheduled_trips">
+                <th mat-header-cell *matHeaderCellDef>Access-A-Ride: Total Scheduled Trips</th>
+                <td mat-cell *matCellDef="let item"> {{ item.access_a_ride_total_scheduled_trips }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="bridges_and_tunnels_total_traffic">
+                <th mat-header-cell *matHeaderCellDef>Bridges and Tunnels: Total Traffic</th>
+                <td mat-cell *matCellDef="let item"> {{ item.bridges_and_tunnels_total_traffic }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="staten_island_railway_total_estimated_ridership">
+                <th mat-header-cell *matHeaderCellDef>Staten Island Railway: Total Estimated Ridership</th>
+                <td mat-cell *matCellDef="let item">{{ item.staten_island_railway_total_estimated_ridership }} </td>
+            </ng-container>
+
+            
+              
+
+        </table>
     </div>
 
 </div>
