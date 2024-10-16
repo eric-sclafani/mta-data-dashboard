@@ -7,7 +7,7 @@ Originally, it was going to be a dashboard to view multiple MTA open datasets, b
 
 # Project Link
 
-Click this link to view the project hosted on Netlify.
+Click [this link](https://mta-ridership-dashboard.netlify.app) to view the project hosted on Netlify.
 
 # Datasets
 - Ridership: https://data.ny.gov/Transportation/MTA-Daily-Ridership-Data-Beginning-2020/vxuj-8kew/data_preview
